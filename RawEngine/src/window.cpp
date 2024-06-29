@@ -1,5 +1,7 @@
 #include <cassert>
 #include <iostream>
+#include <RawEngine/Engine.hpp>
+#include <RawEngine/Events.hpp>
 #include <RawEngine/Window.hpp>
 
 void glfw_error_callback(const int errorCode, const char* pDescription)
@@ -17,6 +19,18 @@ void glfw_monitor_callback(GLFWmonitor* pMonitor, const int event)
     std::cout << "[GLFW] " << (event == GLFW_CONNECTED ? "Connected" : event == GLFW_DISCONNECTED ? "Disconnected" : "?") << " monitor " << glfwGetMonitorName(pMonitor) << std::endl;
 }
 
+void glfw_key_callback(GLFWwindow* pWindow, const int key, const int scancode, const int action, const int mods)
+{
+    const auto& window = *static_cast<RawEngine::Window*>(glfwGetWindowUserPointer(pWindow));
+    window.GetEngine().GetEvents().BroadcastImmutable(RE_TOPIC_KEY, RawEngine::KeyPayload{key, scancode, action, mods});
+}
+
+void glfw_window_size_callback(GLFWwindow* pWindow, const int width, const int height)
+{
+    const auto& window = *static_cast<RawEngine::Window*>(glfwGetWindowUserPointer(pWindow));
+    window.GetEngine().GetEvents().BroadcastImmutable(RE_TOPIC_SIZE, RawEngine::SizePayload{width, height});
+}
+
 void RawEngine::Window::Initialize()
 {
     assert(glfwInit() == GLFW_TRUE);
@@ -30,8 +44,8 @@ void RawEngine::Window::Terminate()
     glfwTerminate();
 }
 
-RawEngine::Window::Module(Engine& engine, const int width, const int height, const char* title)
-    : ModuleBase(engine)
+RawEngine::Window::Window(Engine& engine, const int width, const int height, const char* title)
+    : m_Engine(engine)
 {
     glfwDefaultWindowHints();
     m_GLFW = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -39,14 +53,17 @@ RawEngine::Window::Module(Engine& engine, const int width, const int height, con
 
     glfwSetWindowUserPointer(m_GLFW, this);
     glfwMakeContextCurrent(m_GLFW);
+
+    glfwSetKeyCallback(m_GLFW, glfw_key_callback);
+    glfwSetWindowSizeCallback(m_GLFW, glfw_window_size_callback);
 }
 
-RawEngine::Window::~Module()
+RawEngine::Window::~Window()
 {
     glfwDestroyWindow(m_GLFW);
 }
 
-RawEngine::ModuleType RawEngine::Window::GetType() const { return ModuleType_Window; }
+RawEngine::Engine& RawEngine::Window::GetEngine() const { return m_Engine; }
 
 void RawEngine::Window::SetFullscreen(const bool mode)
 {
@@ -56,7 +73,6 @@ void RawEngine::Window::SetFullscreen(const bool mode)
     if (m_Mode)
     {
         glfwSetWindowMonitor(m_GLFW, nullptr, m_State.PosX, m_State.PosY, m_State.Width, m_State.Height, GLFW_DONT_CARE);
-        glfwSetWindowAttrib(m_GLFW, GLFW_DECORATED, GLFW_TRUE);
         glfwSetWindowAttrib(m_GLFW, GLFW_RESIZABLE, GLFW_TRUE);
     }
     else
@@ -69,12 +85,13 @@ void RawEngine::Window::SetFullscreen(const bool mode)
         int xpos, ypos;
         glfwGetMonitorPos(pMonitor, &xpos, &ypos);
         glfwSetWindowMonitor(m_GLFW, nullptr, xpos, ypos, pMode->width, pMode->height, pMode->refreshRate);
-        glfwSetWindowAttrib(m_GLFW, GLFW_DECORATED, GLFW_FALSE);
         glfwSetWindowAttrib(m_GLFW, GLFW_RESIZABLE, GLFW_FALSE);
     }
 
     m_Mode = mode;
 }
+
+void RawEngine::Window::ToggleFullscreen() { SetFullscreen(!m_Mode); }
 
 void RawEngine::Window::Close() const { glfwSetWindowShouldClose(m_GLFW, GLFW_TRUE); }
 

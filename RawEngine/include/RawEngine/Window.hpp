@@ -1,9 +1,8 @@
 #pragma once
-
 #define GLFW_INCLUDE_NONE
 
 #include <GLFW/glfw3.h>
-#include <RawEngine/Module.hpp>
+#include <RawEngine/RawEngine.hpp>
 
 namespace RawEngine
 {
@@ -12,19 +11,19 @@ namespace RawEngine
         int PosX, PosY, Width, Height;
     };
 
-    template <>
-    class Module<ModuleType_Window> : public ModuleBase
+    class Window
     {
     public:
         static void Initialize();
         static void Terminate();
 
-        Module(Engine& engine, int width, int height, const char* title);
-        ~Module() override;
+        Window(Engine& engine, int width, int height, const char* title);
+        ~Window();
 
-        [[nodiscard]] ModuleType GetType() const override;
+        [[nodiscard]] Engine& GetEngine() const;
 
         void SetFullscreen(bool mode);
+        void ToggleFullscreen();
         void Close() const;
 
         [[nodiscard]] bool Update() const;
@@ -33,11 +32,10 @@ namespace RawEngine
         void GetFramebufferSize(int& width, int& height) const;
 
     private:
+        Engine& m_Engine;
         GLFWwindow* m_GLFW;
 
         State m_State{};
         bool m_Mode = false;
     };
-
-    using Window = Module<ModuleType_Window>;
 }

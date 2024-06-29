@@ -1,7 +1,9 @@
 #pragma once
 
 #include <map>
-#include <RawEngine/Module.hpp>
+#include <string>
+#include <vector>
+#include <RawEngine/RawEngine.hpp>
 
 namespace RawEngine
 {
@@ -26,13 +28,10 @@ namespace RawEngine
         bool Negate;
     };
 
-    template <>
-    class Module<ModuleType_Input> : public ModuleBase
+    class Input
     {
     public:
-        explicit Module(Engine& engine);
-
-        [[nodiscard]] ModuleType GetType() const override;
+        explicit Input(Engine& engine);
 
         void Update();
 
@@ -40,14 +39,14 @@ namespace RawEngine
         bool GetKeyDown(int key);
         bool GetKeyUp(int key);
 
-        void DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs);
+        Input& DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs);
         float GetAxisRaw(const std::string& id, int jid = -1);
         float GetAxis(const std::string& id, int jid = -1);
 
     private:
+        Engine& m_Engine;
+
         std::map<int, KeyState> m_KeyMap;
         std::map<std::string, std::vector<AxisConfig>> m_AxisMap;
     };
-
-    using Input = Module<ModuleType_Input>;
 }

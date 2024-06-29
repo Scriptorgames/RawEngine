@@ -6,3 +6,7 @@
 	path = Dependencies/GLEW
 	url = https://github.com/Perlmint/glew-cmake.git
 	branch = master
+[submodule "Dependencies/GLM"]
+	path = Dependencies/GLM
+	url = https://github.com/g-truc/glm.git
+	branch = 0af55ccecd98d4e5a8d1fad7de25ba429d60e863

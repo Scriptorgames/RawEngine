@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <vector>
-#include <RawEngine/Module.hpp>
+#include <optional>
+#include <RawEngine/RawEngine.hpp>
+#include <RawEngine/Scene.hpp>
 
 namespace RawEngine
 {
@@ -12,26 +13,21 @@ namespace RawEngine
         Engine();
         ~Engine();
 
-        template <ModuleType T>
-        std::shared_ptr<Module<T>> AddModule(auto... args)
-        {
-            auto module = std::make_shared<Module<T>>(*this, args...);
-            m_Modules.push_back(module);
-            return module;
-        }
+        [[nodiscard]] Window& GetWindow() const;
+        [[nodiscard]] Input& GetInput() const;
+        [[nodiscard]] EventSystem& GetEvents() const;
 
-        template <ModuleType T>
-        std::shared_ptr<Module<T>> GetModule()
-        {
-            for (const auto& module : m_Modules)
-                if (module->GetType() == T)
-                    return std::dynamic_pointer_cast<Module<T>>(module);
-            return {};
-        }
+        void Start() const;
+        void Stop() const;
 
-        void Start();
+        Scene& LoadEntryScene();
+        std::optional<Scene> LoadScene(int index);
 
     private:
-        std::vector<std::shared_ptr<ModuleBase>> m_Modules;
+        std::unique_ptr<Window> m_Window;
+        std::unique_ptr<Input> m_Input;
+        std::unique_ptr<EventSystem> m_Events;
+
+        Scene m_Scene;
     };
 }

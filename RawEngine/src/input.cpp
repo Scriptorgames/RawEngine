@@ -9,19 +9,17 @@ void RawEngine::KeyState::Update(const bool now)
     Now = now;
 }
 
-RawEngine::Input::Module(Engine& engine)
-    : ModuleBase(engine)
+RawEngine::Input::Input(Engine& engine)
+    : m_Engine(engine)
 {
 }
 
-RawEngine::ModuleType RawEngine::Input::GetType() const { return ModuleType_Input; }
-
 void RawEngine::Input::Update()
 {
-    const auto window = GetEngine().GetModule<ModuleType_Window>();
+    const auto& window = m_Engine.GetWindow();
 
     for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; ++key)
-        m_KeyMap[key].Update(glfwGetKey(window->GetGLFW(), key));
+        m_KeyMap[key].Update(glfwGetKey(window.GetGLFW(), key));
 }
 
 bool RawEngine::Input::GetKey(const int key) { return m_KeyMap[key].Now; }
@@ -30,7 +28,11 @@ bool RawEngine::Input::GetKeyDown(const int key) { return !m_KeyMap[key].Pre && 
 
 bool RawEngine::Input::GetKeyUp(const int key) { return m_KeyMap[key].Pre && !m_KeyMap[key].Now; }
 
-void RawEngine::Input::DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs) { m_AxisMap[id] = configs; }
+RawEngine::Input& RawEngine::Input::DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs)
+{
+    m_AxisMap[id] = configs;
+    return *this;
+}
 
 float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
 {
@@ -45,7 +47,8 @@ float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
     }
 
     GLFWgamepadstate state;
-    glfwGetGamepadState(jid, &state);
+    if (GLFW_JOYSTICK_1 <= jid && jid <= GLFW_JOYSTICK_16)
+        glfwGetGamepadState(jid, &state);
 
     float accum = 0.0f;
     for (const auto& [Type, Index, Negate] : m_AxisMap[id])
