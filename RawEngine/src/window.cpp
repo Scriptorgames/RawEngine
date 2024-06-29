@@ -38,6 +38,7 @@ RawEngine::Window::Module(Engine& engine, const int width, const int height, con
     assert(m_GLFW);
 
     glfwSetWindowUserPointer(m_GLFW, this);
+    glfwMakeContextCurrent(m_GLFW);
 }
 
 RawEngine::Window::~Module()
@@ -86,3 +87,5 @@ bool RawEngine::Window::Update() const
 }
 
 GLFWwindow* RawEngine::Window::GetGLFW() const { return m_GLFW; }
+
+void RawEngine::Window::GetFramebufferSize(int& width, int& height) const { glfwGetFramebufferSize(m_GLFW, &width, &height); }

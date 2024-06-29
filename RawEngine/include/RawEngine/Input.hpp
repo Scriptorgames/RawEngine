@@ -41,6 +41,7 @@ namespace RawEngine
         bool GetKeyUp(int key);
 
         void DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs);
+        float GetAxisRaw(const std::string& id, int jid = -1);
         float GetAxis(const std::string& id, int jid = -1);
 
     private:

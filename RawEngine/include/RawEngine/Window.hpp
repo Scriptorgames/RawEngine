@@ -30,6 +30,8 @@ namespace RawEngine
         [[nodiscard]] bool Update() const;
         [[nodiscard]] GLFWwindow* GetGLFW() const;
 
+        void GetFramebufferSize(int& width, int& height) const;
+
     private:
         GLFWwindow* m_GLFW;
 

@@ -1,3 +1,5 @@
+#include <cassert>
+#include <GL/glew.h>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Input.hpp>
 #include <RawEngine/Window.hpp>
@@ -7,6 +9,8 @@ RawEngine::Engine::Engine()
     Window::Initialize();
     AddModule<ModuleType_Window>(800, 600, "RawEngine");
     AddModule<ModuleType_Input>();
+
+    assert(!glewInit());
 }
 
 RawEngine::Engine::~Engine()
@@ -30,8 +34,12 @@ void RawEngine::Engine::Start()
 
         const auto x = input->GetAxis("Horizontal");
         const auto y = input->GetAxis("Vertical");
-        glClearColor(x, y, 0.2f, 1.0f);
+        const auto z = input->GetAxis("Jump");
+        glClearColor(x, y, z, 1.0f);
 
+        int width, height;
+        window->GetFramebufferSize(width, height);
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 }

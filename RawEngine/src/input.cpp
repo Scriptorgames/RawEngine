@@ -32,7 +32,7 @@ bool RawEngine::Input::GetKeyUp(const int key) { return m_KeyMap[key].Pre && !m_
 
 void RawEngine::Input::DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs) { m_AxisMap[id] = configs; }
 
-float RawEngine::Input::GetAxis(const std::string& id, int jid)
+float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
 {
     if (jid < 0)
     {
@@ -50,7 +50,7 @@ float RawEngine::Input::GetAxis(const std::string& id, int jid)
     float accum = 0.0f;
     for (const auto& [Type, Index, Negate] : m_AxisMap[id])
     {
-        float value;
+        float value = 0.0f;
         switch (Type)
         {
         case AxisType_Key:
@@ -62,11 +62,16 @@ float RawEngine::Input::GetAxis(const std::string& id, int jid)
         case AxisType_Axis:
             value = state.axes[Index];
             break;
-        default:
-            value = 0.0f;
-            break;
         }
+
         accum += Negate ? -value : value;
     }
+
     return accum;
+}
+
+float RawEngine::Input::GetAxis(const std::string& id, const int jid)
+{
+    const auto accum = GetAxisRaw(id, jid);
+    return accum <= -1.0f ? -1.0f : accum >= 1.0f ? 1.0f : accum;
 }
