@@ -56,9 +56,27 @@ int main()
           });
 
     auto& scene = engine.LoadEntryScene();
-    auto& cube = scene["cube"];
-    auto& cube_transform = cube.AddComponent<RawEngine::ComponentType_Transform>();
-    auto& cube_model = cube.AddComponent<RawEngine::ComponentType_Model>();
+    {
+        auto& entity = scene["cube"];
+
+        auto& transform = entity.AddComponent<RawEngine::ComponentType_Transform>();
+        transform.Translation = {-0.5f, 0.0f, -0.5f};
+        transform.Rotation = rotate(transform.Rotation, 35.0f, {0.0f, 1.0f, 0.0f});
+
+        auto& model = entity.AddComponent<RawEngine::ComponentType_Model>();
+        model.Mesh.Load("cube.obj");
+        model.Shader.Load("cube_vertex.glsl", "cube_fragment.glsl");
+    }
+    {
+        auto& entity = scene["camera"];
+
+        auto& transform = entity.AddComponent<RawEngine::ComponentType_Transform>();
+        transform.Translation = {0.0f, 2.0f, -5.0f};
+        transform.Rotation = quatLookAt(glm::vec3{0.0f, 0.5f, 0.0f} - transform.Translation, {0.0f, 1.0f, 0.0f});
+
+        auto& camera = entity.AddComponent<RawEngine::ComponentType_Camera>();
+        camera.FOV = 70.0f;
+    }
 
     engine.Start();
 }

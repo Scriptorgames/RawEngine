@@ -1,6 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <RawEngine/MeshLoader.hpp>
 #include <RawEngine/RawEngine.hpp>
+#include <RawEngine/ShaderLoader.hpp>
 
 namespace RawEngine
 {
@@ -20,6 +24,10 @@ namespace RawEngine
         explicit Component(Entity& parent);
 
         [[nodiscard]] ComponentType Type() const override;
+
+        glm::vec3 Translation{};
+        glm::quat Rotation{};
+        glm::vec3 Scale{1.0f};
     };
 
     template <>
@@ -28,6 +36,9 @@ namespace RawEngine
         explicit Component(Entity& parent);
 
         [[nodiscard]] ComponentType Type() const override;
+
+        MeshLoader Mesh;
+        ShaderLoader Shader;
     };
 
     template <>
@@ -36,5 +47,9 @@ namespace RawEngine
         explicit Component(Entity& parent);
 
         [[nodiscard]] ComponentType Type() const override;
+
+        float FOV = 90.0f;
+        float Near = 0.3f;
+        float Far = 100.0f;
     };
 }
