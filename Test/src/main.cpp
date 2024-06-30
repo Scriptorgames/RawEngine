@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Entity.hpp>
@@ -55,6 +56,8 @@ int main()
               return false;
           });
 
+    const std::filesystem::path assets("C:/Users/FelixSchreiber/Documents/Projects/C++/RawEngine/Test/assets");
+
     auto& scene = engine.LoadEntryScene();
     {
         auto& entity = scene["cube"];
@@ -65,7 +68,7 @@ int main()
 
         auto& model = entity.AddComponent<RawEngine::ComponentType_Model>();
         model.Mesh.Load("cube.obj");
-        model.Shader.Load("cube_vertex.glsl", "cube_fragment.glsl");
+        model.Shader.Load(assets / "cube_vertex.glsl", assets / "cube_fragment.glsl");
     }
     {
         auto& entity = scene["camera"];

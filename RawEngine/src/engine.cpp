@@ -1,9 +1,15 @@
 #include <cassert>
+#include <iostream>
 #include <GL/glew.h>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Events.hpp>
 #include <RawEngine/Input.hpp>
 #include <RawEngine/Window.hpp>
+
+void gl_debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* pMessage, const void* pUserParam)
+{
+    std::cout << pMessage << std::endl;
+}
 
 RawEngine::Engine::Engine()
 {
@@ -13,6 +19,8 @@ RawEngine::Engine::Engine()
     m_Events = std::make_unique<EventSystem>(*this);
 
     assert(!glewInit());
+
+    glDebugMessageCallback(gl_debug_message_callback, this);
 }
 
 RawEngine::Engine::~Engine()

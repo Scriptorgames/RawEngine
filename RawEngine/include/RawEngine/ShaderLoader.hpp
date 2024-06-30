@@ -1,11 +1,16 @@
 #pragma once
 
-#include <string>
+#include <filesystem>
+#include <GL/glew.h>
 
 namespace RawEngine
 {
     struct ShaderLoader
     {
-        void Load(const std::string& vertex_filename, const std::string& fragment_filename);
+        ~ShaderLoader();
+
+        void Load(const std::filesystem::path& vertex_filename, const std::filesystem::path& fragment_filename);
+
+        GLuint Program{};
     };
 }
