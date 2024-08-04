@@ -1,9 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 #include <RawEngine/RawEngine.hpp>
-#include <RawEngine/Scene.hpp>
 
 namespace RawEngine
 {
@@ -13,21 +11,20 @@ namespace RawEngine
         Engine();
         ~Engine();
 
-        [[nodiscard]] Window& GetWindow() const;
-        [[nodiscard]] Input& GetInput() const;
-        [[nodiscard]] EventSystem& GetEvents() const;
+        [[nodiscard]] AssetManager& GetAssets() const;
+        [[nodiscard]] SceneManager& GetScenes() const;
+        [[nodiscard]] EventManager& GetEvents() const;
+        [[nodiscard]] WindowManager& GetWindow() const;
+        [[nodiscard]] InputManager& GetInput() const;
 
         void Start() const;
         void Stop() const;
 
-        Scene& LoadEntryScene();
-        std::optional<Scene> LoadScene(int index);
-
     private:
-        std::unique_ptr<Window> m_Window;
-        std::unique_ptr<Input> m_Input;
-        std::unique_ptr<EventSystem> m_Events;
-
-        Scene m_Scene;
+        std::unique_ptr<AssetManager> m_Assets;
+        std::unique_ptr<SceneManager> m_Scenes;
+        std::unique_ptr<EventManager> m_Events;
+        std::unique_ptr<WindowManager> m_Window;
+        std::unique_ptr<InputManager> m_Input;
     };
 }

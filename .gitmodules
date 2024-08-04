@@ -10,3 +10,7 @@
 [submodule "Dependencies/ASSIMP"]
 	path = Dependencies/ASSIMP
 	url = https://github.com/assimp/assimp
+[submodule "Dependencies/YAML"]
+	path = Dependencies/YAML
+	url = https://github.com/jbeder/yaml-cpp.git
+	branch = master

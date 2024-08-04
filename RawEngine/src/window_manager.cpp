@@ -1,8 +1,9 @@
 #include <cassert>
 #include <iostream>
 #include <RawEngine/Engine.hpp>
-#include <RawEngine/Events.hpp>
-#include <RawEngine/Window.hpp>
+#include <RawEngine/Event.hpp>
+#include <RawEngine/EventManager.hpp>
+#include <RawEngine/WindowManager.hpp>
 
 void glfw_error_callback(const int errorCode, const char* pDescription)
 {
@@ -11,27 +12,35 @@ void glfw_error_callback(const int errorCode, const char* pDescription)
 
 void glfw_joystick_callback(const int jid, const int event)
 {
-    std::cout << "[GLFW] " << (event == GLFW_CONNECTED ? "Connected" : event == GLFW_DISCONNECTED ? "Disconnected" : "?") << " joystick " << jid << std::endl;
+    std::cout
+        << "[GLFW] "
+        << (event == GLFW_CONNECTED ? "Connected" : event == GLFW_DISCONNECTED ? "Disconnected" : "?")
+        << " joystick "
+        << jid << std::endl;
 }
 
 void glfw_monitor_callback(GLFWmonitor* pMonitor, const int event)
 {
-    std::cout << "[GLFW] " << (event == GLFW_CONNECTED ? "Connected" : event == GLFW_DISCONNECTED ? "Disconnected" : "?") << " monitor " << glfwGetMonitorName(pMonitor) << std::endl;
+    std::cout
+        << "[GLFW] "
+        << (event == GLFW_CONNECTED ? "Connected" : event == GLFW_DISCONNECTED ? "Disconnected" : "?")
+        << " monitor "
+        << glfwGetMonitorName(pMonitor) << std::endl;
 }
 
 void glfw_key_callback(GLFWwindow* pWindow, const int key, const int scancode, const int action, const int mods)
 {
-    const auto& window = *static_cast<RawEngine::Window*>(glfwGetWindowUserPointer(pWindow));
+    const auto& window = *static_cast<RawEngine::WindowManager*>(glfwGetWindowUserPointer(pWindow));
     window.GetEngine().GetEvents().BroadcastImmutable(RE_TOPIC_KEY, RawEngine::KeyPayload{key, scancode, action, mods});
 }
 
 void glfw_window_size_callback(GLFWwindow* pWindow, const int width, const int height)
 {
-    const auto& window = *static_cast<RawEngine::Window*>(glfwGetWindowUserPointer(pWindow));
+    const auto& window = *static_cast<RawEngine::WindowManager*>(glfwGetWindowUserPointer(pWindow));
     window.GetEngine().GetEvents().BroadcastImmutable(RE_TOPIC_SIZE, RawEngine::SizePayload{width, height});
 }
 
-void RawEngine::Window::Initialize()
+void RawEngine::WindowManager::Initialize()
 {
     assert(glfwInit() == GLFW_TRUE);
     glfwSetErrorCallback(glfw_error_callback);
@@ -39,12 +48,9 @@ void RawEngine::Window::Initialize()
     glfwSetMonitorCallback(glfw_monitor_callback);
 }
 
-void RawEngine::Window::Terminate()
-{
-    glfwTerminate();
-}
+void RawEngine::WindowManager::Terminate() { glfwTerminate(); }
 
-RawEngine::Window::Window(Engine& engine, const int width, const int height, const char* title)
+RawEngine::WindowManager::WindowManager(Engine& engine, const int width, const int height, const char* title)
     : m_Engine(engine)
 {
     glfwDefaultWindowHints();
@@ -58,21 +64,27 @@ RawEngine::Window::Window(Engine& engine, const int width, const int height, con
     glfwSetWindowSizeCallback(m_GLFW, glfw_window_size_callback);
 }
 
-RawEngine::Window::~Window()
+RawEngine::WindowManager::~WindowManager()
 {
     glfwDestroyWindow(m_GLFW);
 }
 
-RawEngine::Engine& RawEngine::Window::GetEngine() const { return m_Engine; }
+RawEngine::Engine& RawEngine::WindowManager::GetEngine() const { return m_Engine; }
 
-void RawEngine::Window::SetFullscreen(const bool mode)
+void RawEngine::WindowManager::SetFullscreen(const bool active)
 {
-    if (mode == m_Mode)
+    if (active == m_FullscreenActive)
         return;
 
-    if (m_Mode)
+    if (m_FullscreenActive)
     {
-        glfwSetWindowMonitor(m_GLFW, nullptr, m_State.PosX, m_State.PosY, m_State.Width, m_State.Height, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(m_GLFW,
+                             nullptr,
+                             m_State.PosX,
+                             m_State.PosY,
+                             m_State.Width,
+                             m_State.Height,
+                             GLFW_DONT_CARE);
         glfwSetWindowAttrib(m_GLFW, GLFW_RESIZABLE, GLFW_TRUE);
     }
     else
@@ -88,21 +100,24 @@ void RawEngine::Window::SetFullscreen(const bool mode)
         glfwSetWindowAttrib(m_GLFW, GLFW_RESIZABLE, GLFW_FALSE);
     }
 
-    m_Mode = mode;
+    m_FullscreenActive = active;
 }
 
-void RawEngine::Window::ToggleFullscreen() { SetFullscreen(!m_Mode); }
+void RawEngine::WindowManager::ToggleFullscreen() { SetFullscreen(!m_FullscreenActive); }
 
-void RawEngine::Window::Close() const { glfwSetWindowShouldClose(m_GLFW, GLFW_TRUE); }
+void RawEngine::WindowManager::Close() const { glfwSetWindowShouldClose(m_GLFW, GLFW_TRUE); }
 
-bool RawEngine::Window::Update() const
+bool RawEngine::WindowManager::Update() const
 {
     glfwSwapBuffers(m_GLFW);
-
     glfwPollEvents();
+
     return !glfwWindowShouldClose(m_GLFW);
 }
 
-GLFWwindow* RawEngine::Window::GetGLFW() const { return m_GLFW; }
+GLFWwindow* RawEngine::WindowManager::GetGLFW() const { return m_GLFW; }
 
-void RawEngine::Window::GetFramebufferSize(int& width, int& height) const { glfwGetFramebufferSize(m_GLFW, &width, &height); }
+void RawEngine::WindowManager::GetFramebufferSize(int& width, int& height) const
+{
+    glfwGetFramebufferSize(m_GLFW, &width, &height);
+}

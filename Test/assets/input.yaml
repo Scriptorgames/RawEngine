@@ -1,0 +1,52 @@
+axes:
+  - name: Vertical
+    modes:
+      - type: axis
+        index: left-y
+        invert: yes
+      - type: key
+        index: w
+        invert: no
+      - type: key
+        index: s
+        invert: yes
+      - type: key
+        index: up
+        invert: no
+      - type: key
+        index: down
+        invert: yes
+  - name: Horizontal
+    modes:
+      - type: axis
+        index: left-x
+        invert: no
+      - type: key
+        index: d
+        invert: no
+      - type: key
+        index: a
+        invert: yes
+      - type: key
+        index: right
+        invert: no
+      - type: key
+        index: left
+        invert: yes
+  - name: Jump
+    modes:
+      - type: button
+        index: a
+        invert: no
+      - type: button
+        index: b
+        invert: yes
+      - type: key
+        index: space
+        invert: no
+      - type: key
+        index: left-shift
+        invert: yes
+      - type: key
+        index: right-shift
+        invert: yes

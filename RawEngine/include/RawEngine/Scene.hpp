@@ -14,5 +14,6 @@ namespace RawEngine
         Entity& operator[](const std::string&);
 
         std::map<std::string, Entity> Entities;
+        std::string MainCamera;
     };
 }

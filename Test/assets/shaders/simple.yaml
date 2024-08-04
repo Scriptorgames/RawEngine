@@ -1,0 +1,6 @@
+id: simple
+sources:
+  - stage: vertex
+    filename: simple/vertex.glsl
+  - stage: fragment
+    filename: simple/fragment.glsl

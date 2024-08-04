@@ -17,3 +17,7 @@ set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 add_subdirectory(ASSIMP)
+
+add_subdirectory(YAML)
+
+install(TARGETS glfw libglew_shared glm assimp yaml-cpp)

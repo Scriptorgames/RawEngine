@@ -2,9 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <RawEngine/MeshLoader.hpp>
 #include <RawEngine/RawEngine.hpp>
-#include <RawEngine/ShaderLoader.hpp>
 
 namespace RawEngine
 {
@@ -19,7 +17,7 @@ namespace RawEngine
     };
 
     template <>
-    struct Component<ComponentType_Transform> : ComponentBase
+    struct Component<ComponentType_Transform> final : ComponentBase
     {
         explicit Component(Entity& parent);
 
@@ -31,18 +29,18 @@ namespace RawEngine
     };
 
     template <>
-    struct Component<ComponentType_Model> : ComponentBase
+    struct Component<ComponentType_Model> final : ComponentBase
     {
         explicit Component(Entity& parent);
 
         [[nodiscard]] ComponentType Type() const override;
 
-        MeshLoader Mesh;
-        ShaderLoader Shader;
+        ShaderPtr Shader;
+        MeshPtr Mesh;
     };
 
     template <>
-    struct Component<ComponentType_Camera> : ComponentBase
+    struct Component<ComponentType_Camera> final : ComponentBase
     {
         explicit Component(Entity& parent);
 

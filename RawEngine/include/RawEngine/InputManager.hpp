@@ -21,17 +21,20 @@ namespace RawEngine
         AxisType_Axis
     };
 
-    struct AxisConfig
+    AxisType MapAxisType(const std::string& str);
+    int MapIndex(AxisType type, const std::string& str);
+
+    struct AxisMode
     {
         AxisType Type;
         int Index;
-        bool Negate;
+        bool Invert;
     };
 
-    class Input
+    class InputManager
     {
     public:
-        explicit Input(Engine& engine);
+        explicit InputManager(Engine& engine);
 
         void Update();
 
@@ -39,14 +42,15 @@ namespace RawEngine
         bool GetKeyDown(int key);
         bool GetKeyUp(int key);
 
-        Input& DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs);
-        float GetAxisRaw(const std::string& id, int jid = -1);
-        float GetAxis(const std::string& id, int jid = -1);
+        InputManager& Reset();
+        InputManager& DefineAxis(const std::string& name, const std::vector<AxisMode>& modes);
+        float GetAxisRaw(const std::string& name, int jid = -1);
+        float GetAxis(const std::string& name, int jid = -1);
 
     private:
         Engine& m_Engine;
 
         std::map<int, KeyState> m_KeyMap;
-        std::map<std::string, std::vector<AxisConfig>> m_AxisMap;
+        std::map<std::string, std::vector<AxisMode>> m_AxisMap;
     };
 }

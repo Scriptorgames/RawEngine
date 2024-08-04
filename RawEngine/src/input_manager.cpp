@@ -1,7 +1,7 @@
 #include <cassert>
 #include <RawEngine/Engine.hpp>
-#include <RawEngine/Input.hpp>
-#include <RawEngine/Window.hpp>
+#include <RawEngine/InputManager.hpp>
+#include <RawEngine/WindowManager.hpp>
 
 void RawEngine::KeyState::Update(const bool now)
 {
@@ -9,12 +9,12 @@ void RawEngine::KeyState::Update(const bool now)
     Now = now;
 }
 
-RawEngine::Input::Input(Engine& engine)
+RawEngine::InputManager::InputManager(Engine& engine)
     : m_Engine(engine)
 {
 }
 
-void RawEngine::Input::Update()
+void RawEngine::InputManager::Update()
 {
     const auto& window = m_Engine.GetWindow();
 
@@ -22,19 +22,27 @@ void RawEngine::Input::Update()
         m_KeyMap[key].Update(glfwGetKey(window.GetGLFW(), key));
 }
 
-bool RawEngine::Input::GetKey(const int key) { return m_KeyMap[key].Now; }
+bool RawEngine::InputManager::GetKey(const int key) { return m_KeyMap[key].Now; }
 
-bool RawEngine::Input::GetKeyDown(const int key) { return !m_KeyMap[key].Pre && m_KeyMap[key].Now; }
+bool RawEngine::InputManager::GetKeyDown(const int key) { return !m_KeyMap[key].Pre && m_KeyMap[key].Now; }
 
-bool RawEngine::Input::GetKeyUp(const int key) { return m_KeyMap[key].Pre && !m_KeyMap[key].Now; }
+bool RawEngine::InputManager::GetKeyUp(const int key) { return m_KeyMap[key].Pre && !m_KeyMap[key].Now; }
 
-RawEngine::Input& RawEngine::Input::DefineAxis(const std::string& id, const std::vector<AxisConfig>& configs)
+RawEngine::InputManager& RawEngine::InputManager::Reset()
 {
-    m_AxisMap[id] = configs;
+    m_AxisMap.clear();
+    m_KeyMap.clear();
     return *this;
 }
 
-float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
+RawEngine::InputManager& RawEngine::InputManager::DefineAxis(const std::string& name,
+                                                             const std::vector<AxisMode>& modes)
+{
+    m_AxisMap[name] = modes;
+    return *this;
+}
+
+float RawEngine::InputManager::GetAxisRaw(const std::string& name, int jid)
 {
     if (jid < 0)
     {
@@ -51,7 +59,7 @@ float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
         glfwGetGamepadState(jid, &state);
 
     float accum = 0.0f;
-    for (const auto& [Type, Index, Negate] : m_AxisMap[id])
+    for (const auto& [Type, Index, Invert] : m_AxisMap[name])
     {
         float value = 0.0f;
         switch (Type)
@@ -67,14 +75,14 @@ float RawEngine::Input::GetAxisRaw(const std::string& id, int jid)
             break;
         }
 
-        accum += Negate ? -value : value;
+        accum += Invert ? -value : value;
     }
 
     return accum;
 }
 
-float RawEngine::Input::GetAxis(const std::string& id, const int jid)
+float RawEngine::InputManager::GetAxis(const std::string& name, const int jid)
 {
-    const auto accum = GetAxisRaw(id, jid);
+    const auto accum = GetAxisRaw(name, jid);
     return accum <= -1.0f ? -1.0f : accum >= 1.0f ? 1.0f : accum;
 }

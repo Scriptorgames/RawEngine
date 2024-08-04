@@ -1,0 +1,7 @@
+input: input.yaml
+scenes:
+  - scenes/entry.yaml
+shaders:
+  - shaders/simple.yaml
+meshes:
+  - meshes/cube.yaml

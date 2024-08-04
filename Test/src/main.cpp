@@ -2,36 +2,14 @@
 #include <iostream>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Entity.hpp>
-#include <RawEngine/Events.hpp>
-#include <RawEngine/Input.hpp>
-#include <RawEngine/Window.hpp>
+#include <RawEngine/Event.hpp>
+#include <RawEngine/EventManager.hpp>
+#include <RawEngine/SceneManager.hpp>
+#include <RawEngine/WindowManager.hpp>
 
 int main()
 {
     RawEngine::Engine engine;
-
-    engine.GetInput()
-          .DefineAxis("Vertical", {
-                          {RawEngine::AxisType_Axis, GLFW_GAMEPAD_AXIS_LEFT_Y, true},
-                          {RawEngine::AxisType_Key, GLFW_KEY_W, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_S, true},
-                          {RawEngine::AxisType_Key, GLFW_KEY_UP, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_DOWN, true},
-                      })
-          .DefineAxis("Horizontal", {
-                          {RawEngine::AxisType_Axis, GLFW_GAMEPAD_AXIS_LEFT_X, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_D, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_A, true},
-                          {RawEngine::AxisType_Key, GLFW_KEY_RIGHT, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_LEFT, true},
-                      })
-          .DefineAxis("Jump", {
-                          {RawEngine::AxisType_Button, GLFW_GAMEPAD_BUTTON_A, false},
-                          {RawEngine::AxisType_Button, GLFW_GAMEPAD_BUTTON_B, true},
-                          {RawEngine::AxisType_Key, GLFW_KEY_SPACE, false},
-                          {RawEngine::AxisType_Key, GLFW_KEY_LEFT_SHIFT, true},
-                          {RawEngine::AxisType_Key, GLFW_KEY_RIGHT_SHIFT, true},
-                      });
 
     engine.GetEvents()
           .Register(RE_TOPIC_SIZE, [](const RawEngine::EventBase* pEvent)
@@ -55,31 +33,6 @@ int main()
               }
               return false;
           });
-
-    const std::filesystem::path assets("C:/Users/FelixSchreiber/Documents/Projects/C++/RawEngine/Test/assets");
-
-    auto& scene = engine.LoadEntryScene();
-    {
-        auto& entity = scene["cube"];
-
-        auto& transform = entity.AddComponent<RawEngine::ComponentType_Transform>();
-        transform.Translation = {-0.5f, 0.0f, -0.5f};
-        transform.Rotation = rotate(transform.Rotation, 35.0f, {0.0f, 1.0f, 0.0f});
-
-        auto& model = entity.AddComponent<RawEngine::ComponentType_Model>();
-        model.Mesh.Load("cube.obj");
-        model.Shader.Load(assets / "cube_vertex.glsl", assets / "cube_fragment.glsl");
-    }
-    {
-        auto& entity = scene["camera"];
-
-        auto& transform = entity.AddComponent<RawEngine::ComponentType_Transform>();
-        transform.Translation = {0.0f, 2.0f, -5.0f};
-        transform.Rotation = quatLookAt(glm::vec3{0.0f, 0.5f, 0.0f} - transform.Translation, {0.0f, 1.0f, 0.0f});
-
-        auto& camera = entity.AddComponent<RawEngine::ComponentType_Camera>();
-        camera.FOV = 70.0f;
-    }
 
     engine.Start();
 }

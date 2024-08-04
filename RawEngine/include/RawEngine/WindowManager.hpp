@@ -11,18 +11,18 @@ namespace RawEngine
         int PosX, PosY, Width, Height;
     };
 
-    class Window
+    class WindowManager
     {
     public:
         static void Initialize();
         static void Terminate();
 
-        Window(Engine& engine, int width, int height, const char* title);
-        ~Window();
+        WindowManager(Engine& engine, int width, int height, const char* title);
+        ~WindowManager();
 
         [[nodiscard]] Engine& GetEngine() const;
 
-        void SetFullscreen(bool mode);
+        void SetFullscreen(bool active);
         void ToggleFullscreen();
         void Close() const;
 
@@ -36,6 +36,6 @@ namespace RawEngine
         GLFWwindow* m_GLFW;
 
         State m_State{};
-        bool m_Mode = false;
+        bool m_FullscreenActive = false;
     };
 }

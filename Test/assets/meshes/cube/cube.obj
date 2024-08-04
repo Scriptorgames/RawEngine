@@ -1,4 +1,7 @@
+mtllib cube.mtl
+
 o cube
+usemtl default
 
 v 0.0 0.0 0.0
 v 0.0 0.0 1.0
