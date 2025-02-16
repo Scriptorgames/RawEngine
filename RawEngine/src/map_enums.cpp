@@ -1,7 +1,7 @@
 #include <map>
-#include <RawEngine/InputManager.hpp>
 #include <RawEngine/RawEngine.hpp>
-#include <RawEngine/WindowManager.hpp>
+#include <RawEngine/Manager/InputManager.hpp>
+#include <RawEngine/Manager/WindowManager.hpp>
 
 static std::string upper(const std::string& str)
 {

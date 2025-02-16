@@ -1,9 +1,9 @@
 #include <iostream>
-#include <RawEngine/AssetManager.hpp>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Mesh.hpp>
-#include <RawEngine/SceneManager.hpp>
 #include <RawEngine/Shader.hpp>
+#include <RawEngine/Manager/AssetManager.hpp>
+#include <RawEngine/Manager/SceneManager.hpp>
 #include <yaml-cpp/yaml.h>
 
 RawEngine::SceneManager::SceneManager(Engine& engine)
@@ -26,69 +26,69 @@ static std::string upper(const std::string& str)
 
 RawEngine::Scene& RawEngine::SceneManager::LoadScene(const size_t index)
 {
-    const auto& path = m_Engine.GetAssets().GetScene(index);
+    const auto& path = m_Engine.GetAssets().GetScenePath(index);
 
-    auto scene_yaml = YAML::LoadFile(path.string());
-    const auto id = scene_yaml["id"].as<std::string>();
+    auto root_node = YAML::LoadFile(path.string());
+    const auto id = root_node["id"].as<std::string>();
 
     if (m_Scenes.contains(id))
         return m_LoadedScene = m_Scenes[id];
 
     Scene scene;
-    scene.MainCamera = scene_yaml["main-camera"].as<std::string>();
-    for (const auto& entity_yaml : scene_yaml["entities"])
+    scene.MainCamera = root_node["main-camera"].as<std::string>();
+    for (const auto& entity_node : root_node["entities"])
     {
-        auto& entity = scene[entity_yaml["name"].as<std::string>()];
-        for (const auto& component_yaml : entity_yaml["components"])
+        auto& entity = scene[entity_node["name"].as<std::string>()];
+        for (const auto& component_node : entity_node["components"])
         {
-            switch (MapComponentType(component_yaml["type"].as<std::string>()))
+            switch (MapComponentType(component_node["type"].as<std::string>()))
             {
             case ComponentType_Transform:
                 {
                     auto& transform = entity.AddComponent<ComponentType_Transform>();
 
-                    if (auto translation_yaml = component_yaml["translation"]; translation_yaml.IsDefined())
+                    if (auto translation_node = component_node["translation"]; translation_node.IsDefined())
                         transform.Translation = {
-                            translation_yaml[0].as<float>(),
-                            translation_yaml[1].as<float>(),
-                            translation_yaml[2].as<float>()
+                            translation_node[0].as<float>(),
+                            translation_node[1].as<float>(),
+                            translation_node[2].as<float>()
                         };
 
-                    if (auto rotation_yaml = component_yaml["rotation"]; rotation_yaml.IsDefined())
+                    if (auto rotation_node = component_node["rotation"]; rotation_node.IsDefined())
                     {
-                        if (auto type = upper(rotation_yaml["type"].as<std::string>()); type == "ANGLE-AXIS")
+                        if (auto type = upper(rotation_node["type"].as<std::string>()); type == "ANGLE-AXIS")
                         {
-                            auto angle = rotation_yaml["angle"].as<float>();
-                            auto axis = rotation_yaml["axis"];
+                            auto angle_node = rotation_node["angle"];
+                            auto axis_node = rotation_node["axis"];
                             transform.Rotation = rotate(
                                 transform.Rotation,
-                                angle,
+                                angle_node.as<float>(),
                                 {
-                                    axis[0].as<float>(),
-                                    axis[1].as<float>(),
-                                    axis[2].as<float>()
+                                    axis_node[0].as<float>(),
+                                    axis_node[1].as<float>(),
+                                    axis_node[2].as<float>()
                                 });
                         }
                         else if (type == "LOOK-AT")
                         {
-                            auto target = rotation_yaml["target"];
-                            auto up = rotation_yaml["up"];
+                            auto target_node = rotation_node["target"];
+                            auto up_node = rotation_node["up"];
                             transform.Rotation = quatLookAt(
                                 normalize(
                                     glm::vec3(
-                                        target[0].as<float>(),
-                                        target[1].as<float>(),
-                                        target[2].as<float>())
+                                        target_node[0].as<float>(),
+                                        target_node[1].as<float>(),
+                                        target_node[2].as<float>())
                                     - transform.Translation),
-                                {up[0].as<float>(), up[1].as<float>(), up[2].as<float>()});
+                                {up_node[0].as<float>(), up_node[1].as<float>(), up_node[2].as<float>()});
                         }
                     }
 
-                    if (auto scale_yaml = component_yaml["scale"]; scale_yaml.IsDefined())
+                    if (auto scale_node = component_node["scale"]; scale_node.IsDefined())
                         transform.Scale = {
-                            scale_yaml[0].as<float>(),
-                            scale_yaml[1].as<float>(),
-                            scale_yaml[2].as<float>()
+                            scale_node[0].as<float>(),
+                            scale_node[1].as<float>(),
+                            scale_node[2].as<float>()
                         };
 
                     break;
@@ -97,11 +97,11 @@ RawEngine::Scene& RawEngine::SceneManager::LoadScene(const size_t index)
                 {
                     auto& model = entity.AddComponent<ComponentType_Model>();
 
-                    auto shader_id = component_yaml["shader"].as<std::string>();
-                    auto mesh_id = component_yaml["mesh"].as<std::string>();
+                    auto shader = component_node["shader"].as<std::string>();
+                    auto mesh = component_node["mesh"].as<std::string>();
 
-                    model.Shader = m_Engine.GetAssets().GetShader(shader_id);
-                    model.Mesh = m_Engine.GetAssets().GetMesh(mesh_id);
+                    model.Shader = m_Engine.GetAssets().GetShader(shader);
+                    model.Mesh = m_Engine.GetAssets().GetMesh(mesh);
 
                     break;
                 }
@@ -109,14 +109,14 @@ RawEngine::Scene& RawEngine::SceneManager::LoadScene(const size_t index)
                 {
                     auto& camera = entity.AddComponent<ComponentType_Camera>();
 
-                    if (auto fov_yaml = component_yaml["fov"]; fov_yaml.IsDefined())
-                        camera.FOV = fov_yaml.as<float>();
+                    if (auto fov_node = component_node["fov"]; fov_node.IsDefined())
+                        camera.FOV = fov_node.as<float>();
 
-                    if (auto near_yaml = component_yaml["near"]; near_yaml.IsDefined())
-                        camera.Near = near_yaml.as<float>();
+                    if (auto near_node = component_node["near"]; near_node.IsDefined())
+                        camera.Near = near_node.as<float>();
 
-                    if (auto far_yaml = component_yaml["far"]; far_yaml.IsDefined())
-                        camera.Far = far_yaml.as<float>();
+                    if (auto far_node = component_node["far"]; far_node.IsDefined())
+                        camera.Far = far_node.as<float>();
 
                     break;
                 }

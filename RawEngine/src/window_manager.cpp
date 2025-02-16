@@ -2,8 +2,8 @@
 #include <iostream>
 #include <RawEngine/Engine.hpp>
 #include <RawEngine/Event.hpp>
-#include <RawEngine/EventManager.hpp>
-#include <RawEngine/WindowManager.hpp>
+#include <RawEngine/Manager/EventManager.hpp>
+#include <RawEngine/Manager/WindowManager.hpp>
 
 void glfw_error_callback(const int errorCode, const char* pDescription)
 {

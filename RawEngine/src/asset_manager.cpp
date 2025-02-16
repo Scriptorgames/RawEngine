@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <iostream>
-#include <RawEngine/AssetManager.hpp>
-#include <RawEngine/InputManager.hpp>
 #include <RawEngine/Mesh.hpp>
 #include <RawEngine/Shader.hpp>
+#include <RawEngine/Manager/AssetManager.hpp>
+#include <RawEngine/Manager/InputManager.hpp>
 #include <yaml-cpp/yaml.h>
 
 RawEngine::AssetManager::AssetManager(Engine& engine)
@@ -13,26 +13,26 @@ RawEngine::AssetManager::AssetManager(Engine& engine)
 
 void RawEngine::AssetManager::Index()
 {
-    const auto assets = std::filesystem::current_path() / "assets";
+    const auto assets_path = std::filesystem::current_path() / "assets";
 
-    IndexConfig(assets);
+    IndexConfig(assets_path);
 }
 
-void RawEngine::AssetManager::ConfigureInput(const std::unique_ptr<InputManager>& input) const
+void RawEngine::AssetManager::ConfigureInput(const std::unique_ptr<InputManager>& pInput) const
 {
-    input->Reset();
+    pInput->Reset();
 
-    for (auto yaml = YAML::LoadFile(m_Input.string()); const auto& axis : yaml["axes"])
+    for (auto root_node = YAML::LoadFile(m_InputPath.string()); const auto& axis_node : root_node["axes"])
     {
-        const auto name = axis["name"].as<std::string>();
+        const auto name = axis_node["name"].as<std::string>();
         std::cout << "Axis: " << name << std::endl;
 
         std::vector<AxisMode> modes;
-        for (const auto& mode : axis["modes"])
+        for (const auto& mode_node : axis_node["modes"])
         {
-            const auto type_string = mode["type"].as<std::string>();
-            const auto index_string = mode["index"].as<std::string>();
-            const auto invert = mode["invert"].as<bool>();
+            const auto type_string = mode_node["type"].as<std::string>();
+            const auto index_string = mode_node["index"].as<std::string>();
+            const auto invert = mode_node["invert"].as<bool>();
             std::cout << "  Mode: " << type_string << " " << index_string << " " << invert << std::endl;
 
             const auto type = MapAxisType(type_string);
@@ -40,50 +40,50 @@ void RawEngine::AssetManager::ConfigureInput(const std::unique_ptr<InputManager>
 
             modes.emplace_back(type, index, invert);
         }
-        input->DefineAxis(name, modes);
+        pInput->DefineAxis(name, modes);
     }
 }
 
-const std::filesystem::path& RawEngine::AssetManager::GetScene(const size_t index) { return m_Scenes[index]; }
+const std::filesystem::path& RawEngine::AssetManager::GetScenePath(const size_t index) { return m_ScenePaths[index]; }
 
 RawEngine::ShaderPtr RawEngine::AssetManager::GetShader(const std::string& id) { return m_Shaders[id]; }
 
 RawEngine::MeshPtr RawEngine::AssetManager::GetMesh(const std::string& id) { return m_Meshes[id]; }
 
-void RawEngine::AssetManager::IndexConfig(const std::filesystem::path& assets)
+void RawEngine::AssetManager::IndexConfig(const std::filesystem::path& assets_path)
 {
-    auto yaml = YAML::LoadFile((assets / "config.yaml").string());
+    auto root_node = YAML::LoadFile((assets_path / "config.yaml").string());
 
-    const auto input = yaml["input"];
-    auto shaders = yaml["shaders"];
-    auto meshes = yaml["meshes"];
-    auto scenes = yaml["scenes"];
+    const auto input_node = root_node["input"];
+    auto shaders_node = root_node["shaders"];
+    auto meshes_node = root_node["meshes"];
+    auto scenes_node = root_node["scenes"];
 
-    m_Input = assets / input.as<std::string>();
+    m_InputPath = assets_path / input_node.as<std::string>();
 
-    m_Scenes.clear();
-    for (const auto& scene : scenes)
-        m_Scenes.push_back(assets / scene.as<std::string>());
+    m_ScenePaths.clear();
+    for (const auto& scene : scenes_node)
+        m_ScenePaths.push_back(assets_path / scene.as<std::string>());
 
 
     m_Shaders.clear();
-    for (const auto& shader : shaders)
-        IndexShader(assets / shader.as<std::string>());
+    for (const auto& shader : shaders_node)
+        IndexShader(assets_path / shader.as<std::string>());
 
     m_Meshes.clear();
-    for (const auto& mesh : meshes)
-        IndexMesh(assets / mesh.as<std::string>());
+    for (const auto& mesh : meshes_node)
+        IndexMesh(assets_path / mesh.as<std::string>());
 }
 
 void RawEngine::AssetManager::IndexShader(const std::filesystem::path& path)
 {
-    auto yaml = YAML::LoadFile(path.string());
-    const auto id = yaml["id"].as<std::string>();
+    auto root_node = YAML::LoadFile(path.string());
+    const auto id = root_node["id"].as<std::string>();
     std::map<ShaderStage, std::vector<std::filesystem::path>> sources;
-    for (const auto& source : yaml["sources"])
+    for (const auto& source_node : root_node["sources"])
     {
-        auto stage = source["stage"].as<std::string>();
-        auto filename = source["filename"].as<std::string>();
+        auto stage = source_node["stage"].as<std::string>();
+        auto filename = source_node["filename"].as<std::string>();
         sources[MapShaderStage(stage)].push_back(path.parent_path() / filename);
     }
     m_Shaders[id] = std::make_shared<Shader>(id, sources);
@@ -91,8 +91,8 @@ void RawEngine::AssetManager::IndexShader(const std::filesystem::path& path)
 
 void RawEngine::AssetManager::IndexMesh(const std::filesystem::path& path)
 {
-    auto yaml = YAML::LoadFile(path.string());
-    const auto id = yaml["id"].as<std::string>();
-    const auto source = yaml["source"].as<std::string>();
+    auto root_node = YAML::LoadFile(path.string());
+    const auto id = root_node["id"].as<std::string>();
+    const auto source = root_node["source"].as<std::string>();
     m_Meshes[id] = std::make_shared<Mesh>(path.parent_path() / source);
 }

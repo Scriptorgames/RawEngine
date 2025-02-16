@@ -1,10 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <vector>
-#include <algorithm>
-#include <RawEngine/Component.hpp>
 #include <RawEngine/RawEngine.hpp>
+#include <RawEngine/Scene/Component.hpp>
 
 namespace RawEngine
 {

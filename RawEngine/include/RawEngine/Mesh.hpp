@@ -11,5 +11,8 @@ namespace RawEngine
         explicit Mesh(const std::filesystem::path& source);
 
         void Load();
+
+    private:
+        std::filesystem::path m_Source;
     };
 }

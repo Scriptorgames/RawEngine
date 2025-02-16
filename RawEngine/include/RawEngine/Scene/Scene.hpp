@@ -2,7 +2,7 @@
 
 #include <map>
 #include <string>
-#include <RawEngine/Entity.hpp>
+#include <RawEngine/Scene/Entity.hpp>
 
 namespace RawEngine
 {

@@ -1,2 +1,4 @@
 newmtl default
 Kd 0.2 0.3 0.9
+Pr 0.2
+Pm 0.8

@@ -1,4 +1,4 @@
-#include <RawEngine/Entity.hpp>
+#include <RawEngine/Scene/Entity.hpp>
 
 RawEngine::Entity::Entity() = default;
 

@@ -1,12 +1,12 @@
 #include <cassert>
 #include <iostream>
 #include <GL/glew.h>
-#include <RawEngine/AssetManager.hpp>
 #include <RawEngine/Engine.hpp>
-#include <RawEngine/EventManager.hpp>
-#include <RawEngine/InputManager.hpp>
-#include <RawEngine/SceneManager.hpp>
-#include <RawEngine/WindowManager.hpp>
+#include <RawEngine/Manager/AssetManager.hpp>
+#include <RawEngine/Manager/EventManager.hpp>
+#include <RawEngine/Manager/InputManager.hpp>
+#include <RawEngine/Manager/SceneManager.hpp>
+#include <RawEngine/Manager/WindowManager.hpp>
 
 void gl_debug_message_callback(GLenum /*source*/,
                                GLenum /*type*/,

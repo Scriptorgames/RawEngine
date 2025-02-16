@@ -1,7 +1,7 @@
 #include <cassert>
 #include <RawEngine/Engine.hpp>
-#include <RawEngine/InputManager.hpp>
-#include <RawEngine/WindowManager.hpp>
+#include <RawEngine/Manager/InputManager.hpp>
+#include <RawEngine/Manager/WindowManager.hpp>
 
 void RawEngine::KeyState::Update(const bool now)
 {

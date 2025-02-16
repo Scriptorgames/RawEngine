@@ -1,4 +1,4 @@
-#include <RawEngine/Component.hpp>
+#include <RawEngine/Scene/Component.hpp>
 
 RawEngine::ComponentBase::ComponentBase(Entity& parent)
     : Parent(parent)

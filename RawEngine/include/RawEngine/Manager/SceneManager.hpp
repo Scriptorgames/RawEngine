@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RawEngine/RawEngine.hpp>
-#include <RawEngine/Scene.hpp>
+#include <RawEngine/Scene/Scene.hpp>
 
 namespace RawEngine
 {

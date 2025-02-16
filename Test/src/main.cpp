@@ -1,11 +1,11 @@
 #include <filesystem>
 #include <iostream>
 #include <RawEngine/Engine.hpp>
-#include <RawEngine/Entity.hpp>
 #include <RawEngine/Event.hpp>
-#include <RawEngine/EventManager.hpp>
-#include <RawEngine/SceneManager.hpp>
-#include <RawEngine/WindowManager.hpp>
+#include <RawEngine/Manager/EventManager.hpp>
+#include <RawEngine/Manager/SceneManager.hpp>
+#include <RawEngine/Manager/WindowManager.hpp>
+#include <RawEngine/Scene/Entity.hpp>
 
 int main()
 {

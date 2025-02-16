@@ -1,4 +1,4 @@
-#include <RawEngine/Scene.hpp>
+#include <RawEngine/Scene/Scene.hpp>
 
 RawEngine::Scene::Scene() = default;
 
